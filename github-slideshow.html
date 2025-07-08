@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title {
+            font-size: clamp(1.8rem, 3vw, 2.5rem);
+            font-weight: 300;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+
+        .gallery-container {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .slide {
+            display: none;
+            position: relative;
+        }
+
+        .slide.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide img {
+            width: 100%;
+            height: 70vh;
+            object-fit: cover;
+            display: block;
+            border-radius: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid #ecf0f1;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .nav-btn:hover {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        }
+
+        .play-pause {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .play-pause:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .playlist {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            padding: 30px;
+        }
+
+        .playlist-header {
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .playlist-items {
+            display: grid;
+            gap: 12px;
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .playlist-item:hover {
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .playlist-item.active {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+
+        .playlist-number {
+            font-size: 0.9rem;
+            color: #95a5a6;
+            margin-right: 20px;
+            font-weight: 500;
+            min-width: 30px;
+        }
+
+        .playlist-item.active .playlist-number {
+            color: #3498db;
+        }
+
+        .playlist-content {
+            flex: 1;
+        }
+
+        .playlist-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #2c3e50;
+            margin-bottom: 3px;
+        }
+
+        .playlist-item.active .playlist-title {
+            color: #3498db;
+        }
+
+        .playlist-subtitle {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+
+        .playlist-icon {
+            color: #95a5a6;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .playlist-item.active .playlist-icon {
+            color: #3498db;
+        }
+
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #3498db;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .slide img {
+                height: 50vh;
+            }
+            
+            .slide-info {
+                padding: 20px 25px;
+            }
+            
+            .controls {
+                gap: 20px;
+            }
+            
+            .playlist {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Piano Shell</h1>
+        </div>
+
+        <div class="gallery-container">
+            <!-- Slide 1 -->
+            <div class="slide active">
+                <img src="https://raw.githubusercontent.com/pianoshell/pianoshell.github.io/main/Sullivan-Wedding-3293-2.jpg" alt="Wedding Photo">
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide">
+                <img src="https://raw.githubusercontent.com/pianoshell/pianoshell.github.io/main/Sullivan-Wedding-6787.jpg" alt="Wedding Photo">
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide">
+                <img src="https://raw.githubusercontent.com/pianoshell/pianoshell.github.io/main/Sullivan-Wedding-6129.jpg" alt="Wedding Photo">
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide">
+                <img src="https://raw.githubusercontent.com/pianoshell/pianoshell.github.io/main/Sullivan-Wedding-5754.jpg" alt="Wedding Photo">
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide">
+                <img src="https://raw.githubusercontent.com/pianoshell/pianoshell.github.io/main/Sullivan-Wedding-6030.jpg" alt="Wedding Photo">
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide">
+                <img src="https://raw.githubusercontent.com/pianoshell/pianoshell.github.io/main/Sullivan-Wedding-6079-2.jpg" alt="Wedding Photo">
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="nav-btn" onclick="changeSlide(-1)">‹</button>
+            <button class="nav-btn" onclick="changeSlide(1)">›</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        let slides = document.querySelectorAll('.slide');
+
+        function showSlide(n) {
+            // Hide all slides
+            slides.forEach(slide => slide.classList.remove('active'));
+
+            // Wrap around if necessary
+            if (n >= slides.length) currentSlideIndex = 0;
+            if (n < 0) currentSlideIndex = slides.length - 1;
+
+            // Show current slide
+            slides[currentSlideIndex].classList.add('active');
+        }
+
+        function changeSlide(n) {
+            currentSlideIndex += n;
+            showSlide(currentSlideIndex);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+        });
+    </script>
+</body>
+</html>
